@@ -6,22 +6,22 @@
 makeCacheMatrix <- function(x = matrix()) {
     m <- NULL
     
-    #setter of the cached matrix
+    #setter of the original matrix
     set <- function(y) {
         x <<- y
         m <<- NULL
     }
     
-    #getter of the cached matrix
+    #getter of the original matrix
     get <- function() x
     
-    #set the cached version of the inverse of x
+    #set the stored version of the inverse of x
     setInverseMatrix <- function(invMatrix) m <<- invMatrix
     
     #get the cached version of the inverse of x
     getInverseMatrix <- function() m
     
-    #list of available functions
+    #list of available functions for the "special matrix"
     list(set = set, 
          get = get, 
          setInverseMatrix = setInverseMatrix, 
@@ -32,42 +32,45 @@ makeCacheMatrix <- function(x = matrix()) {
 ## Write a short comment describing this function
 
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+    ## Return a matrix that is the inverse of 'x'
+    
+    # attempt to retrieve the cached inverse matrix
     m <- x$getInverseMatrix()
+    
+    #if the cache was not empty, don't recalculate the inverse, rather return the cached version
+    #only have a single RETURN statement per good coding practices
     if(!is.null(m)) {
+        #m does not need to be modified, it will be returned below
         message("getting cached inverse matrix")
     } else {
+        #get the matrix to inverse and calculate the inverse
         data <- x$get()
         m <- solve(data, ...)
+        #set the cached inverse
         x$setInverseMatrix(m)
     }
+    
     #return the inverse matrix, cached or not.  This is the SINGLE return of the function
     m
 }
 
+## TESTS ##
+#c=rbind(c(4,3), c(3,2))
+#yy <- makeCacheMatrix(c)
+#cacheSolve(yy) # does not use cache
+#cacheSolve(yy) # uses cache
+## INVERSE RESULT
+#       [,1] [,2]
+# [1,]   -2    3
+# [2,]    3   -4
 
-# makeVector <- function(x = numeric()) {
-#     m <- NULL
-#     set <- function(y) {
-#         x <<- y
-#         m <<- NULL
-#     }
-#     get <- function() x
-#     setmean <- function(mean) m <<- mean
-#     getmean <- function() m
-#     list(set = set, get = get,
-#          setmean = setmean,
-#          getmean = getmean)
-# }
-# 
-# cachemean <- function(x, ...) {
-#     m <- x$getmean()
-#     if(!is.null(m)) {
-#         message("getting cached data")
-#         return(m)
-#     }
-#     data <- x$get()
-#     m <- mean(data, ...)
-#     x$setmean(m)
-#     m
-# }
+## 3x3 TEST ##
+# c = rbind(c(1,2,3), c(0, 1, 4), c(5,6,0))
+# yy <- makeCacheMatrix(c)
+# cacheSolve(yy)
+# cacheSolve(yy)
+## INVERSE RESULT
+#       [,1] [,2] [,3]
+# [1,]  -24   18    5
+# [2,]   20  -15   -4
+# [3,]   -5    4    1
